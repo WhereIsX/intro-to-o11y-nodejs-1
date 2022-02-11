@@ -21,7 +21,7 @@ app.get("/sequence.js", (req, res) => {
 });
 
 app.get("/fib", async (req, res) => {
-  let index = parseInt(req.query.index);
+  const index = parseInt(req.query.index);
 
   const span = opentelemetry.trace.getSpan(opentelemetry.context.active());
   span.setAttribute("app.seqofnum.parameter.index", index);
@@ -39,18 +39,17 @@ app.get("/fib", async (req, res) => {
     let minusTwoReturn = JSON.parse(await makeRequest(
       `http://127.0.0.1:3000/fib?index=${index - 2}`
     ));
-    // let span = tracer.startSpan("calculation");
     returnValue = calculateFibonacciNumber(minusOneParsedResponse.fibonacciNumber,
-                                           minusTwoReturn.fibonacciNumber);
-    // span.end();
+      minusTwoReturn.fibonacciNumber);
   }
+
+  span.setAttribute("app.seqofnum.result.fibonacciNumber", returnValue);
   const returnObject = { fibonacciNumber: returnValue, index: index }
-  // maybe add the return value as a custom attribute too?
   res.send(JSON.stringify(returnObject));
 });
 
 function calculateFibonacciNumber(previous, oneBeforeThat) {
- // can you wrap this next line in a custom span?
+  // can you wrap this next line in a custom span?
   const result = previous + oneBeforeThat;
   return previous + oneBeforeThat;
 }
